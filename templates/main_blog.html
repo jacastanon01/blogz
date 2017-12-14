@@ -1,15 +1,18 @@
-{% extends 'base.html%}
+{% extends "base.html" %}
 
 {% block content %}
-<h1>Blog</h1>
+<h1 >Build a Blog</h1>
 
-    <form action= '/blog' method='post'>
-        <label>
-            <input type="text" name="title" />
-        </label>
-        <label>
-            <input type="textarea" name="body" />
-        </label>
-        <input type="submit" value="submit" />
+    {% if blogs|length == 0 %}
+        <p> nothing here</p>
+    {% else %}
+        {% for blog in blogs %}
+        <h2><a href="./newpost?id={{blog.id}}">{{blog.title}}</a></h2>
 
-    </form>
+
+        <p>{{blog.body}}</p>
+        <hr />
+        {% endfor %}
+    {% endif %}
+
+{% endblock %}
