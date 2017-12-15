@@ -1,5 +1,7 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -14,15 +16,17 @@ class Blog(db.Model):
     title = db.Column(db.String(70))
     body = db.Column(db.String(140))
 
+
     def __init__(self, title, body):
         self.title = title
         self.body = body
 
+
 @app.route('/')
 def index():
-    return redirect('/newpost')
+    return redirect('/blog')
 
-@app.route('/blog', methods=['POST', 'GET'])
+@app.route('/newpost', methods=['POST', 'GET'])
 def blog():
 
     if request.method == 'POST':
@@ -38,7 +42,7 @@ def blog():
     
 
     
-@app.route('/newpost', methods=['POST', 'GET'])
+@app.route('/blog', methods=['POST', 'GET'])
 def newpost():
     if request.method == 'POST':
         title = request.form['title']
