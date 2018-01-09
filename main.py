@@ -1,7 +1,6 @@
 from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import desc
-from datetime import datetime
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -15,11 +14,25 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(70))
     body = db.Column(db.String(140))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 
-    def __init__(self, title, body):
+    def __init__(self, title, body, owner):
         self.title = title
         self.body = body
+        self.owner = owner
+        
+
+class User(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(25))
+    password = db.Column(db.String(25))
+    blogs = db.relationship('Blog', backref='owner')
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
 
 @app.route('/')
@@ -27,13 +40,15 @@ def index():
     return redirect('/blog')
 
 @app.route('/newpost', methods=['POST', 'GET'])
-def blog():
+def newpost():
+
+    #if user is not logged in redirect to login page
 
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
 
-        blog_entry= Blog(title, body)
+        blog_entry= Blog(title, body, owner)
         db.session.add(blog_entry)
         db.session.commit()
         
@@ -43,10 +58,11 @@ def blog():
 
     
 @app.route('/blog', methods=['POST', 'GET'])
-def newpost():
+def blog():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        
         
         title_error = ""
         body_error = ""
@@ -63,7 +79,7 @@ def newpost():
                                                     title_error = title_error, title=title,
                                                     body = body)
         else:
-            blog_entry= Blog(title, body)
+            blog_entry= Blog(title, body, owner)
             db.session.add(blog_entry)
             db.session.commit()
             return render_template('blog_entry.html', blog = blog_entry)
@@ -76,6 +92,24 @@ def newpost():
         else:
             blogs = Blog.query.all()
             return render_template('main_blog.html', blogs = blogs)
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    #if request.method == 'POST':
+
+    render_template('signup.html')
+
+"""
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    #delete user from session
+    redirect return ('/blog')
+"""
     
 
 
