@@ -26,7 +26,7 @@ class Blog(db.Model):
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(25))
+    username = db.Column(db.String(25), unique=True)
     password = db.Column(db.String(25))
     blogs = db.relationship('Blog', backref='owner')
 
@@ -42,17 +42,21 @@ def index():
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
 
+    
     #if user is not logged in redirect to login page
 
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        owner = User.query.filter_by(username = session['username']).first()
 
         blog_entry= Blog(title, body, owner)
         db.session.add(blog_entry)
         db.session.commit()
-        
 
+        
+        
+    
     return render_template('new_post.html') 
     
 
@@ -62,6 +66,7 @@ def blog():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        owner = User.query.filter_by(username = session['username']).first()
         
         
         title_error = ""
@@ -96,21 +101,57 @@ def blog():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    #if request.method == 'POST':
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        verify = request.form['verify']
 
-    render_template('signup.html')
+        #VALIDATE DATA, username and password must be >3 characters
 
-"""
-@app.route('/login', methods=['GET', 'POST'])
+        existing_user = User.query.filter_by(username=username).first()
+        if not existing_user:
+            if not verify == password:
+                flash('passwords do not match', 'error')
+            elif len(username) >= 3 and len(password) >= 3:
+                new_user = User(username,password)
+                db.session.add(new_user)
+                db.session.commit()
+                session['username'] = username
+                return redirect('/newpost')
+            else:
+                flash('Username and password must have at least 3 characters', 'error')
+                
+        else:
+            flash('This username already exists', 'error')
+            
+        return redirect('/signup')
+
+    else:
+        return render_template('signup.html')
+
+
+@app.route('/login', methods=['POST', 'GET'])  
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if not username and not password == "":
+            if user and user.password == password:
+                session['username'] = username
+                flash("logged in")
+                return redirect('/newpost') 
+        else:
+            # TODO fix validation for username
+            if not session['username']:
+                flash('invalid username', 'error')
+            elif user and not user.password == password:
+                flash('invalid password', 'error')
+            else:
+                flash('Please enter a valid username and password', 'error')
+            
 
-
-@app.route('/logout', methods=['POST'])
-def logout():
-    #delete user from session
-    redirect return ('/blog')
-"""
-    
+    return render_template('login.html')
 
 
 
