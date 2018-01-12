@@ -7,32 +7,29 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogger@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
-app.secret_key = 'whatever#'
+app.secret_key = '#whatever'
 
-class Blog(db.Model):
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(25), unique=True)
+    password = db.Column(db.String(25))
+    blogs = db.relationship('Blog', backref='owner', lazy='dynamic')
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+class Blog(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(70))
     body = db.Column(db.String(140))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-
     def __init__(self, title, body, owner):
         self.title = title
         self.body = body
         self.owner = owner
-        
-
-class User(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(25), unique=True)
-    password = db.Column(db.String(25))
-    blogs = db.relationship('Blog', backref='owner')
-
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
 
 
 @app.before_request
@@ -44,41 +41,36 @@ def require_login():
 
 @app.route('/')
 def index():
-    return redirect('/blog')
+    return render_template('index.html')
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
 
-    
+    owner = User.query.filter_by(username = session['username']).first()
     #if user is not logged in redirect to login page
+    if owner:
+        if request.method == 'POST':
+            title = request.form['title']
+            body = request.form['body']
 
-    if request.method == 'POST':
-        title = request.form['title']
-        body = request.form['body']
-        owner = User.query.filter_by(username = session['username']).first()
+            blog_entry= Blog(title, body, owner)
+            db.session.add(blog_entry)
+            db.session.commit()
 
-        blog_entry= Blog(title, body, owner)
-        db.session.add(blog_entry)
-        db.session.commit()
-
-        
-        
-    
-    return render_template('new_post.html') 
+        return render_template('new_post.html') 
+    else:
+        return redirect('/login')
     
 
     
 @app.route('/blog', methods=['POST', 'GET'])
 def blog():
     if request.method == 'POST':
+        owner = User.query.filter_by(username= session['username']).first()
         title = request.form['title']
         body = request.form['body']
-        owner = User.query.filter_by(username = session['username']).first()
-        
-        
         title_error = ""
-        body_error = ""
-        
+        body_error = ""  
             
         if body == "":
             body_error = "Please enter something"
@@ -155,7 +147,6 @@ def login():
         else:
             flash('Please enter a valid username and password', 'error')
             
-
     return render_template('login.html')
 
 @app.route('/logout')
