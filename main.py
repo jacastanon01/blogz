@@ -65,6 +65,7 @@ def newpost():
     
 @app.route('/blog', methods=['POST', 'GET'])
 def blog():
+    owner = User.query.filter_by(username= session['username']).first()
     if request.method == 'POST':
         owner = User.query.filter_by(username= session['username']).first()
         title = request.form['title']
@@ -86,16 +87,17 @@ def blog():
             blog_entry= Blog(title, body, owner)
             db.session.add(blog_entry)
             db.session.commit()
-            return render_template('blog_entry.html', blog = blog_entry)
+            return render_template('blog_entry.html', blog = blog_entry, owner=owner)
 
     else:
+        owner = User.query.filter_by(username= session['username']).first()
         something_blog_id = request.args.get('id')
         if something_blog_id:
             single_blog = Blog.query.filter_by(id = something_blog_id).first()
-            return render_template('blog_entry.html', blog = single_blog)
+            return render_template('blog_entry.html', blog = single_blog, owner=owner)
         else:
             blogs = Blog.query.all()
-            return render_template('main_blog.html', blogs = blogs)
+            return render_template('main_blog.html', blogs = blogs, owner=owner)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
