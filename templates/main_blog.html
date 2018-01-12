@@ -4,7 +4,7 @@
 <h1 style="text-align:center">Build a Blog</h1>
 <hr />
 
-    {% if blogs|length == 0 %}
+    {% if blogs or owner|length == 0 %}
         <p> nothing here</p>
     {% else %}
         {% for blog in blogs %}

@@ -7,7 +7,7 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogger@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
-app.secret_key = '#whatever'
+app.secret_key = '#whatever#'
 
 
 class User(db.Model):
@@ -65,9 +65,8 @@ def newpost():
     
 @app.route('/blog', methods=['POST', 'GET'])
 def blog():
-    owner = User.query.filter_by(username= session['username']).first()
     if request.method == 'POST':
-        owner = User.query.filter_by(username= session['username']).first()
+        owner = User.query.filter_by(username=session['username']).first()
         title = request.form['title']
         body = request.form['body']
         title_error = ""
@@ -90,13 +89,16 @@ def blog():
             return render_template('blog_entry.html', blog = blog_entry, owner=owner)
 
     else:
-        owner = User.query.filter_by(username= session['username']).first()
         something_blog_id = request.args.get('id')
-        if something_blog_id:
-            single_blog = Blog.query.filter_by(id = something_blog_id).first()
-            return render_template('blog_entry.html', blog = single_blog, owner=owner)
+        some_username = request.args.get('username')
+        if some_username:
+            owner = User.query.filter_by(username=session['username']).first()
+            if something_blog_id:
+                single_blog = Blog.query.filter_by(id = something_blog_id).first()
+                return render_template('blog_entry.html', blog = single_blog, owner=owner)
         else:
             blogs = Blog.query.all()
+            owner = User.query.all()
             return render_template('main_blog.html', blogs = blogs, owner=owner)
 
 
