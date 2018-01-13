@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, render_template, session, flash
+from pprint import pprint
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -10,15 +11,6 @@ db = SQLAlchemy(app)
 app.secret_key = '#whatever#'
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(25), unique=True)
-    password = db.Column(db.String(25))
-    blogs = db.relationship('Blog', backref='owner', lazy='dynamic')
-
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
 
 class Blog(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
@@ -30,6 +22,16 @@ class Blog(db.Model):
         self.title = title
         self.body = body
         self.owner = owner
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(25), unique=True)
+    password = db.Column(db.String(25))
+    blogs = db.relationship('Blog', backref='owner', lazy='dynamic')
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
 
 @app.before_request
@@ -92,22 +94,33 @@ def blog():
 
     else:
         something_blog_id = request.args.get('id')
-        user_id = request.args.get('user')
+        user_id= request.args.get('user')
+        print(user_id)
+        owner_id = request.args.get('blog_owner_id')
+        print(owner_id)
+        
         if something_blog_id:
-            owner = User.query.filter_by(username=session['username']).first()
+            #owner = User.query.filter_by(username=session['username']).first()
             single_blog = Blog.query.filter_by(id = something_blog_id).first()
-            return render_template('blog_entry.html', blog = single_blog, owner=owner)
+            return render_template('blog_entry.html', blog = single_blog)
+        
         if user_id:
-            #user = User.query.filter_by(username=session['username'])
-            return render_template('singleUser.html')
-        else:
-            owner = User.query.all()
-            blogs = Blog.query.all()
-            if owner and blogs:
-                owner = User.query.filter_by(username=session['username']).first()
-            else:
-                owner=User.query.all()
-            return render_template('main_blog.html', blogs = blogs, owner=owner)
+            print("*********** starting if user_id********")
+            user_id= request.args.get('user')
+            print(user_id)
+            user = User.query.get(user_id)
+            pprint(dir(user))
+            blogs = Blog.query.filter_by(owner=user).all()
+            print("****!!!!" + str(len(blogs)))
+            #single_blog = Blog.query.filter_by(owner_id=something_blog_id).first()
+            #owner = User.query.filter_by(username=user_id).first()
+            #print('****' + owner)
+            return render_template('singleUser.html', blogs=blogs)
+
+        blogs = Blog.query.all()
+        owner = User.query.all()
+        
+        return render_template('main_blog.html', blogs = blogs, owner=owner)
 
 
 @app.route('/signup', methods=['GET', 'POST'])

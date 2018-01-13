@@ -6,6 +6,17 @@
 
 <!--List all posts <h1> title <h/1> <p> body </p> -->
 
+{% for blog in blogs %}
+
+    <h1>{{blog.title}}</h1>
+
+    <p>{{blog.body}}</p>
+
+    <h6>written by <a href="./blog?user={{blog.owner.username}}">{{blog.owner.username}}</a></h6>
+
+
+{% endfor %}
+
 <!-- r = User.query.filter_by('blogs').first()
     for posts in r.blog.all():
         return posts.blogs-->

@@ -10,7 +10,7 @@
 {% else %}
     <ul>
     {% for user in owners %}
-        <li>{{user.username}} </li>
+        <li><a href="./blog?user={{user.username}}">{{user.username}}</a> </li>
     {% endfor %}
 {% endif %}
     </ul>
