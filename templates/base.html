@@ -6,13 +6,6 @@
         .error {
             color:red;
         }
-
-        .right {
-            
-            display: inline-block;
-            position:relative;
-            vertical-align: top;
-        }
         
     </style>
      <nav>
@@ -23,15 +16,10 @@
             <li><a href="/signup">Signup</a></li>
             <li><a href="/logout">log out</a></li>
         </ul> 
-
         </nav>
-
-   
 
 </head>
 <body>
-
-
     {% with messages = get_flashed_messages(with_categories=True) %}
         <ul>
         {% for category,message in messages %}
@@ -40,13 +28,8 @@
         </ul>
     {% endwith %}
 
-
     {% block content %}
 
     {% endblock %}
-
-
 </body>
-
-
 </html>
