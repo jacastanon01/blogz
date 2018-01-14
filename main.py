@@ -45,7 +45,7 @@ def require_login():
 @app.route('/')
 def index():
     owners = User.query.all()
-    return render_template('index.html', owners=owners)
+    return render_template('index.html', owners=owners, blog=blog)
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
