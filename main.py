@@ -47,24 +47,20 @@ def index():
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
-
     owner = User.query.filter_by(username = session['username']).first()
     #if user is not logged in redirect to login page
     if owner:
         if request.method == 'POST':
             title = request.form['title']
             body = request.form['body']
-
             blog_entry= Blog(title, body, owner)
             db.session.add(blog_entry)
             db.session.commit()
-
         return render_template('new_post.html') 
     else:
         return redirect('/login')
     
 
-    
 @app.route('/blog', methods=['POST', 'GET'])
 def blog():
     if request.method == 'POST':
@@ -75,11 +71,9 @@ def blog():
         body_error = ""  
             
         if body == "":
-            body_error = "Please enter something"
-                    
+            body_error = "Please enter something"            
         if title == "":
             title_error = "Please enter something"
-            
         if title_error or body_error:
             return render_template('new_post.html', body_error=body_error,
                                                     title_error = title_error, title=title,
@@ -133,13 +127,11 @@ def signup():
                 session['username'] = username
                 return redirect('/newpost')
             else:
-                flash('Username and password must have at least 3 characters', 'error')
-                
+                flash('Username and password must have at least 3 characters', 'error')     
         else:
             flash('This username already exists', 'error')
-            
+                
         return redirect('/signup')
-
     else:
         return render_template('signup.html')
 
@@ -168,7 +160,6 @@ def login():
 def logout():
     del session['username']
     return redirect('/blog')
-
 
 
 if __name__=='__main__':
