@@ -11,6 +11,15 @@ db = SQLAlchemy(app)
 app.secret_key = '#whatever#'
 
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(25), unique=True)
+    password = db.Column(db.String(25))
+    blogs = db.relationship('Blog', backref='owner', lazy='dynamic')
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
 class Blog(db.Model): 
     id = db.Column(db.Integer, primary_key=True)
@@ -22,16 +31,6 @@ class Blog(db.Model):
         self.title = title
         self.body = body
         self.owner = owner
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(25), unique=True)
-    password = db.Column(db.String(25))
-    blogs = db.relationship('Blog', backref='owner', lazy='dynamic')
-
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
 
 
 @app.before_request
