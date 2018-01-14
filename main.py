@@ -1,5 +1,4 @@
 from flask import Flask, request, redirect, render_template, session, flash
-from pprint import pprint
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -99,21 +98,13 @@ def blog():
         print(owner_id)
         
         if something_blog_id:
-            #owner = User.query.filter_by(username=session['username']).first()
             single_blog = Blog.query.filter_by(id = something_blog_id).first()
             return render_template('blog_entry.html', blog = single_blog)
         
         if user_id:
-            print("*********** starting if user_id********")
             user_id= request.args.get('user')
-            print(user_id)
             user = User.query.get(user_id)
-            pprint(dir(user))
             blogs = Blog.query.filter_by(owner=user).all()
-            print("****!!!!" + str(len(blogs)))
-            #single_blog = Blog.query.filter_by(owner_id=something_blog_id).first()
-            #owner = User.query.filter_by(username=user_id).first()
-            #print('****' + owner)
             return render_template('singleUser.html', blogs=blogs)
 
         blogs = Blog.query.all()
