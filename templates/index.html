@@ -7,11 +7,11 @@
 {% if owners|length==0 %}
     <p>No users have signed up. <a href='/signup'>Click here</a> to make an account.</p>
 {% else %}
-    <ul>
+    <ol>
     {% for user in owners %}
         <li><a href="./blog?user={{user.id}}">{{user.username}}</a> </li>
     {% endfor %}
 {% endif %}
-    </ul>
+    </ol>
 
 {% endblock %}

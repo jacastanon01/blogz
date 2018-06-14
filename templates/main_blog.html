@@ -7,12 +7,15 @@
     {% if blogs|length == 0 %}
         <p> nothing here</p>
     {% else %}
-        {% for blog in blogs %}
-        <h2><a href="./blog?id={{blog.id}}">{{blog.title}}</a></h2>
-        <p>{{blog.body}}</p>
-        <h6>written by <a href="./blog?user={{blog.owner.id}}">{{blog.owner.username}}</a></h6>
-        <hr />
-        {% endfor %}
+
+        <div class="blog-posts">
+            {% for blog in blogs %}
+            <h2><a href="./blog?id={{blog.id}}">{{blog.title}}</a></h2>
+            <p>{{blog.body}}</p>
+            <h6>written by <a href="./blog?user={{blog.owner.id}}">{{blog.owner.username}}</a></h6>
+            <hr />
+            {% endfor %}
+        </div>
     {% endif %}
 
 {% endblock %}
